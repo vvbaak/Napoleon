@@ -25,6 +25,7 @@ const wordCard = document.getElementById('wordCard');
 const countdownEl = document.getElementById('countdown');
 const statusText = document.getElementById('statusText');
 const finalScore = document.getElementById('finalScore');
+const orientationNotice = document.getElementById('orientationNotice');
 const modeButtons = document.querySelectorAll('.mode-btn');
 
 let selectedMode = 'kids';
@@ -58,6 +59,40 @@ function showScreen(screen) {
     element.classList.toggle('visible', element === screen);
     element.classList.toggle('hidden', element !== screen);
   });
+}
+
+function isLandscapeMode() {
+  if (window.matchMedia) {
+    return window.matchMedia('(orientation: landscape)').matches;
+  }
+
+  return true;
+}
+
+function updateOrientationState() {
+  if (!isRunning) {
+    orientationNotice.classList.add('hidden');
+    return;
+  }
+
+  const landscape = isLandscapeMode();
+  orientationNotice.classList.toggle('hidden', landscape);
+
+  if (!landscape) {
+    setStatus('Draai je telefoon naar landscape');
+  } else if (statusText.textContent.includes('Draai je telefoon naar landscape')) {
+    setStatus('Hou de telefoon op je voorhoofd');
+  }
+}
+
+async function lockLandscapeOrientation() {
+  try {
+    if (screen && screen.orientation && typeof screen.orientation.lock === 'function') {
+      await screen.orientation.lock('landscape');
+    }
+  } catch (error) {
+    // Safari may reject locking; this is safe to ignore.
+  }
 }
 
 function startTimer() {
@@ -143,9 +178,18 @@ function resetGame() {
 }
 
 async function startGame() {
+  if (!isLandscapeMode()) {
+    showScreen(gameScreen);
+    isRunning = false;
+    orientationNotice.classList.remove('hidden');
+    setStatus('Draai je telefoon naar landscape');
+    return;
+  }
+
   resetGame();
   showScreen(gameScreen);
   isRunning = true;
+  orientationNotice.classList.add('hidden');
   wordCard.classList.add('hidden');
   startTimer();
 
@@ -164,6 +208,8 @@ async function startGame() {
     setStatus('Tilt-sensor is ingeschakeld');
   }
 
+  await lockLandscapeOrientation();
+  updateOrientationState();
   await showCountdown();
   nextWord();
 }
@@ -182,7 +228,15 @@ function stopGame() {
 }
 
 function handleOrientation(event) {
-  if (!isRunning) return;
+  if (!isRunning) {
+    updateOrientationState();
+    return;
+  }
+
+  if (!isLandscapeMode()) {
+    updateOrientationState();
+    return;
+  }
 
   const beta = Number(event.beta ?? 0);
   const gamma = Number(event.gamma ?? 0);
@@ -220,6 +274,7 @@ function attachListeners() {
   });
 
   window.addEventListener('deviceorientation', handleOrientation);
+  window.addEventListener('orientationchange', updateOrientationState);
 }
 
 attachListeners();

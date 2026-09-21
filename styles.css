@@ -221,6 +221,52 @@ h1 {
   display: none;
 }
 
+.orientation-notice {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 23, 42, 0.86);
+  backdrop-filter: blur(5px);
+  z-index: 8;
+}
+
+.orientation-notice.hidden {
+  display: none;
+}
+
+.orientation-box {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 24px;
+  padding: 28px 24px;
+  text-align: center;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.5);
+}
+
+.orientation-icon {
+  font-size: 2.8rem;
+  margin-bottom: 8px;
+}
+
+.orientation-box p,
+.orientation-box strong {
+  margin: 0;
+  display: block;
+}
+
+.orientation-box p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.orientation-box strong {
+  font-size: 2rem;
+  color: var(--accent);
+}
+
 .word-label {
   display: inline-block;
   font-size: 0.72rem;

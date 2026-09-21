@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#111827" />
-    <title>Heads Up! Clone</title>
+    <title>Napoleon</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -35,6 +35,14 @@
         </section>
 
         <section id="gameScreen" class="panel hidden">
+          <div id="orientationNotice" class="orientation-notice hidden" aria-live="polite">
+            <div class="orientation-box">
+              <div class="orientation-icon">↻</div>
+              <p>Draai je telefoon</p>
+              <strong>naar landscape</strong>
+            </div>
+          </div>
+
           <div id="countdown" class="countdown" aria-live="polite">3</div>
           <div id="wordCard" class="word-card hidden">
             <span class="word-label">woord</span>
