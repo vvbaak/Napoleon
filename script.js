@@ -184,14 +184,23 @@ function stopGame() {
 function handleOrientation(event) {
   if (!isRunning) return;
 
-  const beta = event.beta || 0;
-  if (beta > 20 && lastTilt !== 'good') {
+  const beta = Number(event.beta ?? 0);
+  const gamma = Number(event.gamma ?? 0);
+  const portraitTilt = beta;
+  const sideTilt = gamma;
+
+  const isGoodTilt = (portraitTilt > 20 || sideTilt > 24) && Math.abs(sideTilt) < 55;
+  const isPassTilt = (portraitTilt < -20 || sideTilt < -24) && Math.abs(sideTilt) < 55;
+
+  if (isGoodTilt && lastTilt !== 'good') {
     lastTilt = 'good';
+    setStatus('Goed! Volgend woord');
     handleCorrect();
-  } else if (beta < -20 && lastTilt !== 'pass') {
+  } else if (isPassTilt && lastTilt !== 'pass') {
     lastTilt = 'pass';
+    setStatus('Pas! Geen punt');
     handlePass();
-  } else if (Math.abs(beta) < 12) {
+  } else if (Math.abs(portraitTilt) < 12 && Math.abs(sideTilt) < 12) {
     lastTilt = null;
   }
 }

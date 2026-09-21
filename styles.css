@@ -32,6 +32,9 @@ body {
   align-items: center;
   justify-content: center;
   padding: 16px;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
 }
 
 .app-shell {
