@@ -53,8 +53,8 @@ body {
   }
 
   .app-shell {
-    width: min(96vw, 960px);
-    min-height: min(92vh, 460px);
+    width: min(96vw, 980px);
+    min-height: min(92vh, 470px);
     border-radius: 24px;
   }
 
@@ -69,7 +69,7 @@ body {
 
   .word-card {
     max-width: 520px;
-    min-height: 190px;
+    min-height: 200px;
     margin-top: 12px;
   }
 
@@ -250,10 +250,16 @@ h1 {
   padding: 20px;
   box-shadow: 0 22px 55px rgba(15, 23, 42, 0.4);
   border: 4px solid rgba(56, 189, 248, 0.2);
+  animation: cardPulse 0.25s ease;
 }
 
 .word-card.hidden {
   display: none;
+}
+
+@keyframes cardPulse {
+  0% { transform: scale(0.92); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 .orientation-notice {
@@ -327,6 +333,17 @@ h1 {
   font-size: 0.96rem;
   color: var(--muted);
   min-height: 24px;
+  transition: transform 0.18s ease, color 0.18s ease, opacity 0.18s ease;
+}
+
+.status-text.good {
+  color: #86efac;
+  transform: scale(1.05);
+}
+
+.status-text.pass {
+  color: #fbbf24;
+  transform: scale(1.05);
 }
 
 .end-actions {

@@ -37,6 +37,44 @@ let isRunning = false;
 let timerInterval = null;
 let orientationPermissionGranted = false;
 let lastTilt = null;
+let audioContext = null;
+
+function ensureAudioContext() {
+  if (!audioContext) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      audioContext = new AudioCtx();
+    }
+  }
+
+  if (audioContext && audioContext.state === 'suspended') {
+    audioContext.resume();
+  }
+}
+
+function playTone(frequency, duration, volume, type = 'sine') {
+  if (!audioContext) {
+    ensureAudioContext();
+  }
+
+  if (!audioContext) {
+    return;
+  }
+
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+
+  oscillator.type = type;
+  oscillator.frequency.value = frequency;
+  gainNode.gain.value = volume;
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+
+  oscillator.start();
+  oscillator.stop(audioContext.currentTime + duration);
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration);
+}
 
 function setMode(mode) {
   selectedMode = mode;
@@ -112,6 +150,12 @@ function startTimer() {
 
 function setStatus(message) {
   statusText.textContent = message;
+  statusText.classList.remove('good', 'pass');
+  if (message.includes('Goed')) {
+    statusText.classList.add('good');
+  } else if (message.includes('Pas')) {
+    statusText.classList.add('pass');
+  }
 }
 
 function showCountdown() {
@@ -157,11 +201,15 @@ function updateScore() {
 function handleCorrect() {
   score += 1;
   updateScore();
+  ensureAudioContext();
+  playTone(740, 0.12, 0.06, 'triangle');
   setStatus('Goed! Volgend woord');
   nextWord();
 }
 
 function handlePass() {
+  ensureAudioContext();
+  playTone(180, 0.16, 0.04, 'sawtooth');
   setStatus('Pas! Geen punt');
   nextWord();
 }
@@ -221,6 +269,7 @@ function endGame() {
   clearInterval(timerInterval);
   timerInterval = null;
   finalScore.textContent = String(score);
+  orientationNotice.classList.add('hidden');
   showScreen(endScreen);
 }
 
@@ -272,6 +321,9 @@ function attachListeners() {
     startGame();
   });
   homeButton.addEventListener('click', () => {
+    if (isRunning) {
+      endGame();
+    }
     showScreen(homeScreen);
   });
 
