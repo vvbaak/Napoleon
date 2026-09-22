@@ -16,6 +16,8 @@ const gameScreen = document.getElementById('gameScreen');
 const endScreen = document.getElementById('endScreen');
 const startButton = document.getElementById('startButton');
 const stopButton = document.getElementById('stopButton');
+const passButton = document.getElementById('passButton');
+const goodButton = document.getElementById('goodButton');
 const restartButton = document.getElementById('restartButton');
 const homeButton = document.getElementById('homeButton');
 const scoreValue = document.getElementById('scoreValue');
@@ -38,6 +40,13 @@ let timerInterval = null;
 let orientationPermissionGranted = false;
 let lastTilt = null;
 let audioContext = null;
+
+function syncViewportMetrics() {
+  const width = window.innerWidth || document.documentElement.clientWidth || window.screen.width || 0;
+  const height = window.innerHeight || document.documentElement.clientHeight || window.screen.height || 0;
+  document.documentElement.style.setProperty('--screen-width', `${width}px`);
+  document.documentElement.style.setProperty('--screen-height', `${height}px`);
+}
 
 function ensureAudioContext() {
   if (!audioContext) {
@@ -278,36 +287,8 @@ function stopGame() {
   endGame();
 }
 
-function handleOrientation(event) {
-  if (!isRunning) {
-    updateOrientationState();
-    return;
-  }
-
-  if (!isLandscapeMode()) {
-    updateOrientationState();
-    return;
-  }
-
-  const beta = Number(event.beta ?? 0);
-  const gamma = Number(event.gamma ?? 0);
-  const portraitTilt = beta;
-  const sideTilt = gamma;
-
-  const isGoodTilt = (portraitTilt > 20 || sideTilt > 24) && Math.abs(sideTilt) < 55;
-  const isPassTilt = (portraitTilt < -20 || sideTilt < -24) && Math.abs(sideTilt) < 55;
-
-  if (isGoodTilt && lastTilt !== 'good') {
-    lastTilt = 'good';
-    setStatus('Goed! Volgend woord');
-    handleCorrect();
-  } else if (isPassTilt && lastTilt !== 'pass') {
-    lastTilt = 'pass';
-    setStatus('Pas! Geen punt');
-    handlePass();
-  } else if (Math.abs(portraitTilt) < 12 && Math.abs(sideTilt) < 12) {
-    lastTilt = null;
-  }
+function handleOrientation() {
+  updateOrientationState();
 }
 
 function attachListeners() {
@@ -317,6 +298,8 @@ function attachListeners() {
 
   startButton.addEventListener('click', startGame);
   stopButton.addEventListener('click', stopGame);
+  passButton.addEventListener('click', handlePass);
+  goodButton.addEventListener('click', handleCorrect);
   restartButton.addEventListener('click', () => {
     startGame();
   });
@@ -327,8 +310,13 @@ function attachListeners() {
     showScreen(homeScreen);
   });
 
-  window.addEventListener('deviceorientation', handleOrientation);
   window.addEventListener('orientationchange', updateOrientationState);
+  window.addEventListener('resize', () => {
+    syncViewportMetrics();
+    updateOrientationState();
+  });
+
+  syncViewportMetrics();
 }
 
 attachListeners();
