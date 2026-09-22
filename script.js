@@ -190,6 +190,7 @@ async function startGame() {
   showScreen(gameScreen);
   isRunning = true;
   orientationNotice.classList.add('hidden');
+  wordCard.classList.remove('hidden');
   wordCard.classList.add('hidden');
   startTimer();
 
@@ -211,6 +212,7 @@ async function startGame() {
   await lockLandscapeOrientation();
   updateOrientationState();
   await showCountdown();
+  wordCard.classList.add('hidden');
   nextWord();
 }
 

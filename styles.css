@@ -47,6 +47,41 @@ body {
   overflow: hidden;
 }
 
+@media (orientation: landscape) {
+  body {
+    padding: 10px;
+  }
+
+  .app-shell {
+    width: min(96vw, 960px);
+    min-height: min(92vh, 460px);
+    border-radius: 24px;
+  }
+
+  .game-area {
+    min-height: min(74vh, 390px);
+    padding-top: 6px;
+  }
+
+  .panel {
+    inset: 8px 18px 18px;
+  }
+
+  .word-card {
+    max-width: 520px;
+    min-height: 190px;
+    margin-top: 12px;
+  }
+
+  .topbar {
+    padding: 12px 18px 6px;
+  }
+
+  .subtitle {
+    margin-bottom: 18px;
+  }
+}
+
 .topbar {
   display: flex;
   justify-content: space-between;
