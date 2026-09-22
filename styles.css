@@ -55,26 +55,52 @@ body {
 
 @media (orientation: landscape) {
   .topbar {
-    padding: 12px 18px 6px;
+    padding: 10px 18px 4px;
   }
 
   .game-area {
-    height: calc(100% - 66px);
+    height: calc(100% - 58px);
+  }
+
+  #gameScreen {
+    justify-content: center;
+    gap: 10px;
   }
 
   .word-card {
-    max-width: min(52vw, 540px);
-    min-height: 180px;
+    max-width: min(60vw, 560px);
+    min-height: 120px;
+    max-height: 160px;
+    padding: 12px 20px;
+    margin: 0;
+  }
+
+  #wordText {
+    font-size: clamp(2rem, 7vw, 3.4rem);
+  }
+
+  .status-text {
     margin-top: 4px;
+    min-height: 18px;
+    font-size: 0.9rem;
+  }
+
+  .answer-actions {
+    width: min(88vw, 780px);
+    margin: 6px 0;
+  }
+
+  .answer-btn {
+    min-height: 58px;
+  }
+
+  #stopButton {
+    margin-top: 4px;
+    padding: 8px 20px;
   }
 
   .subtitle {
     margin-bottom: 18px;
-  }
-
-  .answer-actions {
-    width: min(86vw, 780px);
-    margin-top: 8px;
   }
 }
 
@@ -119,14 +145,19 @@ body {
 
 .panel {
   position: absolute;
-  inset: 0 12px 12px;
+  inset: 0 12px 10px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   text-align: center;
   transition: opacity 0.25s ease, transform 0.25s ease;
   overflow: hidden;
+}
+
+#gameScreen {
+  justify-content: center;
+  gap: 12px;
 }
 
 .visible {
@@ -326,7 +357,7 @@ h1 {
 }
 
 #stopButton {
-  margin-top: 22px;
+  margin-top: 6px;
 }
 
 .status-text {

@@ -36,6 +36,8 @@ let timeLeft = 90;
 let currentWords = [];
 let currentIndex = 0;
 let isRunning = false;
+let roundActive = false;
+let startingRound = false;
 let timerInterval = null;
 let orientationPermissionGranted = false;
 let lastTilt = null;
@@ -123,10 +125,12 @@ function updateOrientationState() {
   const landscape = isLandscapeMode();
   orientationNotice.classList.toggle('hidden', landscape);
 
-  if (!landscape) {
+  if (landscape) {
+    if (!roundActive && !startingRound) {
+      beginRound();
+    }
+  } else {
     setStatus('Draai je telefoon naar landscape');
-  } else if (statusText.textContent.includes('Draai je telefoon naar landscape')) {
-    setStatus('Hou de telefoon op je voorhoofd');
   }
 }
 
@@ -229,25 +233,39 @@ function resetGame() {
   scoreValue.textContent = '0';
   timerValue.textContent = '90';
   lastTilt = null;
+  roundActive = false;
+  startingRound = false;
+  wordCard.classList.add('hidden');
   setStatus('Hou de telefoon op je voorhoofd');
 }
 
-async function startGame() {
-  if (!isLandscapeMode()) {
-    showScreen(gameScreen);
-    isRunning = false;
-    orientationNotice.classList.remove('hidden');
-    wordCard.classList.add('hidden');
-    setStatus('Draai je telefoon naar landscape');
+async function beginRound() {
+  if (roundActive || startingRound || !isRunning) return;
+  if (!isLandscapeMode()) return;
+
+  startingRound = true;
+  orientationNotice.classList.add('hidden');
+  wordCard.classList.add('hidden');
+  await showCountdown();
+
+  if (!isRunning) {
+    startingRound = false;
     return;
   }
 
+  roundActive = true;
+  startingRound = false;
+  setStatus('Hou de telefoon op je voorhoofd');
+  nextWord();
+  startTimer();
+}
+
+async function startGame() {
   resetGame();
   showScreen(gameScreen);
   isRunning = true;
-  orientationNotice.classList.add('hidden');
-  wordCard.classList.remove('hidden');
-  startTimer();
+
+  ensureAudioContext();
 
   if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
     if (!orientationPermissionGranted) {
@@ -260,19 +278,21 @@ async function startGame() {
     }
   }
 
-  if (!orientationPermissionGranted && typeof DeviceOrientationEvent !== 'undefined') {
-    setStatus('Tilt-sensor is ingeschakeld');
-  }
-
   await lockLandscapeOrientation();
-  updateOrientationState();
-  await showCountdown();
-  wordCard.classList.remove('hidden');
-  nextWord();
+
+  if (isLandscapeMode()) {
+    orientationNotice.classList.add('hidden');
+    beginRound();
+  } else {
+    orientationNotice.classList.remove('hidden');
+    setStatus('Draai je telefoon naar landscape');
+  }
 }
 
 function endGame() {
   isRunning = false;
+  roundActive = false;
+  startingRound = false;
   clearInterval(timerInterval);
   timerInterval = null;
   finalScore.textContent = String(score);
