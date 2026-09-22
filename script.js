@@ -42,10 +42,8 @@ let lastTilt = null;
 let audioContext = null;
 
 function syncViewportMetrics() {
-  const width = window.innerWidth || document.documentElement.clientWidth || window.screen.width || 0;
-  const height = window.innerHeight || document.documentElement.clientHeight || window.screen.height || 0;
-  document.documentElement.style.setProperty('--screen-width', `${width}px`);
-  document.documentElement.style.setProperty('--screen-height', `${height}px`);
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
 }
 
 function ensureAudioContext() {
@@ -239,6 +237,7 @@ async function startGame() {
     showScreen(gameScreen);
     isRunning = false;
     orientationNotice.classList.remove('hidden');
+    wordCard.classList.add('hidden');
     setStatus('Draai je telefoon naar landscape');
     return;
   }
@@ -248,7 +247,6 @@ async function startGame() {
   isRunning = true;
   orientationNotice.classList.add('hidden');
   wordCard.classList.remove('hidden');
-  wordCard.classList.add('hidden');
   startTimer();
 
   if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
@@ -269,7 +267,7 @@ async function startGame() {
   await lockLandscapeOrientation();
   updateOrientationState();
   await showCountdown();
-  wordCard.classList.add('hidden');
+  wordCard.classList.remove('hidden');
   nextWord();
 }
 
