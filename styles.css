@@ -64,39 +64,40 @@ body {
 
   #gameScreen {
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
   }
 
   .word-card {
     max-width: min(60vw, 560px);
-    min-height: 120px;
-    max-height: 160px;
-    padding: 12px 20px;
+    min-height: 110px;
+    max-height: 140px;
+    padding: 10px 20px;
     margin: 0;
   }
 
   #wordText {
-    font-size: clamp(2rem, 7vw, 3.4rem);
+    font-size: clamp(1.8rem, 6.5vw, 3.2rem);
   }
 
   .status-text {
-    margin-top: 4px;
-    min-height: 18px;
-    font-size: 0.9rem;
+    margin-top: 2px;
+    min-height: 16px;
+    font-size: 0.85rem;
   }
 
   .answer-actions {
     width: min(88vw, 780px);
-    margin: 6px 0;
+    margin: 4px 0;
   }
 
   .answer-btn {
-    min-height: 58px;
+    min-height: 52px;
   }
 
   #stopButton {
-    margin-top: 4px;
-    padding: 8px 20px;
+    margin-top: 2px;
+    padding: 6px 18px;
+    font-size: 0.9rem;
   }
 
   .subtitle {
