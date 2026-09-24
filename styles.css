@@ -294,6 +294,23 @@ h1 {
   letter-spacing: 0.02em;
 }
 
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-top: 10px;
+  padding: 6px 10px;
+  transition: color 0.15s ease;
+}
+
+.link-btn:active {
+  color: var(--text);
+}
+
 .time-btn {
   background: rgba(148, 163, 184, 0.12);
   color: var(--text);

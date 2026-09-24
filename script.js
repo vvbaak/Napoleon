@@ -47,6 +47,7 @@ const finalDetail = document.getElementById('finalDetail');
 const finalRecord = document.getElementById('finalRecord');
 const homeHighscore = document.getElementById('homeHighscore');
 const timeButtons = document.querySelectorAll('.time-btn');
+const clearHighscoreButton = document.getElementById('clearHighscoreButton');
 
 let selectedMode = 'kids';
 let selectedTime = 90;
@@ -87,6 +88,17 @@ function updateHighscoreDisplay() {
   if (homeHighscore) {
     homeHighscore.textContent = `Highscore: ${getHighscore(selectedMode)}`;
   }
+}
+
+function clearHighscore() {
+  try {
+    localStorage.removeItem(highscoreKey(selectedMode));
+  } catch (error) {
+    // storage may be unavailable; ignore.
+  }
+  updateHighscoreDisplay();
+  ensureAudioContext();
+  playTone(300, 0.14, 0.24, 'sine');
 }
 
 function syncViewportMetrics() {
@@ -470,6 +482,9 @@ function attachListeners() {
   stopButton.addEventListener('click', stopGame);
   passButton.addEventListener('click', handlePass);
   goodButton.addEventListener('click', handleCorrect);
+  if (clearHighscoreButton) {
+    clearHighscoreButton.addEventListener('click', clearHighscore);
+  }
   restartButton.addEventListener('click', () => {
     startGame();
   });
