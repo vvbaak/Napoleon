@@ -1,13 +1,26 @@
 const MODE_WORDS = {
   kids: [
-    'Teddybeer', 'Pirate', 'Dino', 'Tuin', 'Banaan', 'Piraat', 'Auto', 'Luchtballon', 'Aap', 'Kikker',
+    'Teddybeer', 'Piraat', 'Dino', 'Tuin', 'Banaan', 'Auto', 'Luchtballon', 'Aap', 'Kikker',
     'Vliegtuig', 'Piano', 'Schoen', 'Juf', 'Kasteel', 'Maan', 'Zon', 'Vissen', 'Tijger', 'Olifant',
-    'Puppy', 'Ballet', 'Puzzel', 'Sneeuwman', 'Zebra', 'Brandweer', 'Pasta', 'Kerstboom', 'Baker', 'School'
+    'Puppy', 'Ballet', 'Puzzel', 'Sneeuwman', 'Zebra', 'Brandweer', 'Pasta', 'Kerstboom', 'Bakker', 'School',
+    'Konijn', 'Draak', 'Regenboog', 'IJsje', 'Ballon', 'Fiets', 'Trommel', 'Clown', 'Beer', 'Muis',
+    'Giraffe', 'Krokodil', 'Pinguïn', 'Kabouter', 'Heks', 'Ridder', 'Prinses', 'Koning', 'Robot', 'Raket',
+    'Trein', 'Boot', 'Tractor', 'Politie', 'Dokter', 'Tandarts', 'Kapper', 'Bakkerij', 'Snoep', 'Koekje',
+    'Appel', 'Aardbei', 'Wortel', 'Paddenstoel', 'Vlinder', 'Bij', 'Lieveheersbeestje', 'Slak', 'Egel', 'Uil',
+    'Paard', 'Koe', 'Schaap', 'Varken', 'Kip', 'Eend', 'Hond', 'Poes', 'Hamster', 'Papegaai',
+    'Voetbal', 'Schommel', 'Glijbaan', 'Zwembad', 'Strand', 'Zandkasteel', 'Sneeuwbal', 'Slee', 'Skelter', 'Step'
   ],
   adults: [
     'Film', 'Boodschap', 'Piano', 'Laptop', 'Zwemmen', 'Aloha', 'Berg', 'Restaurant', 'Koffie', 'Vakantie',
     'Sport', 'Bureau', 'Boot', 'Kerstmis', 'Aardbeien', 'Winkel', 'Parachute', 'Bruiloft', 'Trein', 'Taxi',
-    'Muziek', 'Spiegel', 'Wolk', 'Regen', 'Hotel', 'Theater', 'Tennis', 'Bioscoop', 'Wandelen', 'Licht'
+    'Muziek', 'Spiegel', 'Wolk', 'Regen', 'Hotel', 'Theater', 'Tennis', 'Bioscoop', 'Wandelen', 'Licht',
+    'Festival', 'Concert', 'Museum', 'Schilderij', 'Beeldhouwen', 'Fotograaf', 'Journalist', 'Advocaat', 'Chirurg', 'Piloot',
+    'Marathon', 'Yoga', 'Fitness', 'Skiën', 'Surfen', 'Duiken', 'Zeilen', 'Golf', 'Hockey', 'Boksen',
+    'Smartphone', 'Tablet', 'Camera', 'Koptelefoon', 'Toetsenbord', 'Wifi', 'Podcast', 'Streaming', 'Selfie', 'Emoji',
+    'Sushi', 'Pizza', 'Barbecue', 'Cocktail', 'Wijn', 'Kaasplank', 'Ontbijt', 'Picknick', 'Bakkerij', 'Markt',
+    'Amsterdam', 'Parijs', 'Rome', 'Londen', 'Berlijn', 'Barcelona', 'New York', 'Tokio', 'Egypte', 'Safari',
+    'Verhuizen', 'Solliciteren', 'Vergadering', 'Deadline', 'Presentatie', 'Belasting', 'Hypotheek', 'Verzekering', 'Files', 'Weekend',
+    'Bruidstaart', 'Verjaardag', 'Cadeau', 'Vuurwerk', 'Oudjaar', 'Sinterklaas', 'Halloween', 'Carnaval', 'Koningsdag', 'Zomer'
   ]
 };
 
@@ -94,6 +107,19 @@ function ensureAudioContext() {
   }
 }
 
+// iOS only unlocks WebAudio inside a real user gesture; play a silent buffer once.
+function unlockAudio() {
+  ensureAudioContext();
+  if (!audioContext) return;
+
+  audioContext.resume();
+  const buffer = audioContext.createBuffer(1, 1, 22050);
+  const source = audioContext.createBufferSource();
+  source.buffer = buffer;
+  source.connect(audioContext.destination);
+  source.start(0);
+}
+
 function playTone(frequency, duration, volume, type = 'sine') {
   if (!audioContext) {
     ensureAudioContext();
@@ -103,19 +129,26 @@ function playTone(frequency, duration, volume, type = 'sine') {
     return;
   }
 
+  if (audioContext.state === 'suspended') {
+    audioContext.resume();
+  }
+
+  const now = audioContext.currentTime;
   const oscillator = audioContext.createOscillator();
   const gainNode = audioContext.createGain();
 
   oscillator.type = type;
-  oscillator.frequency.value = frequency;
-  gainNode.gain.value = volume;
+  oscillator.frequency.setValueAtTime(frequency, now);
+
+  gainNode.gain.setValueAtTime(0.0001, now);
+  gainNode.gain.exponentialRampToValueAtTime(volume, now + 0.01);
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
   oscillator.connect(gainNode);
   gainNode.connect(audioContext.destination);
 
-  oscillator.start();
-  oscillator.stop(audioContext.currentTime + duration);
-  gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration);
+  oscillator.start(now);
+  oscillator.stop(now + duration);
 }
 
 function setMode(mode) {
@@ -199,7 +232,7 @@ function startTimer() {
     }
 
     if (timeLeft <= 10 && timeLeft > 0) {
-      playTone(880, 0.05, 0.03, 'square');
+      playTone(880, 0.06, 0.18, 'square');
     }
 
     if (timeLeft <= 0) {
@@ -273,8 +306,8 @@ function handleCorrect() {
   score += 1;
   updateScore();
   ensureAudioContext();
-  playTone(660, 0.08, 0.06, 'triangle');
-  playTone(990, 0.14, 0.05, 'triangle');
+  playTone(660, 0.1, 0.35, 'triangle');
+  playTone(990, 0.18, 0.3, 'triangle');
   flashFeedback('good');
   setStatus('Goed! Volgend woord');
   nextWord();
@@ -284,8 +317,8 @@ function handlePass() {
   if (!roundActive) return;
   passCount += 1;
   ensureAudioContext();
-  playTone(220, 0.18, 0.05, 'sawtooth');
-  playTone(160, 0.2, 0.04, 'sawtooth');
+  playTone(240, 0.2, 0.3, 'sawtooth');
+  playTone(150, 0.24, 0.28, 'sawtooth');
   flashFeedback('pass');
   setStatus('Pas! Geen punt');
   nextWord();
@@ -397,6 +430,9 @@ function handleOrientation() {
 }
 
 function attachListeners() {
+  document.addEventListener('pointerdown', unlockAudio, { once: true });
+  document.addEventListener('touchend', unlockAudio, { once: true });
+
   modeButtons.forEach((button) => {
     button.addEventListener('click', () => setMode(button.dataset.mode));
   });
