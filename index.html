@@ -33,10 +33,24 @@
           <h1>Napoleon</h1>
           <p class="subtitle">Kies een categorie en houd de telefoon in landscape op je voorhoofd.</p>
 
-          <div class="choice-group">
-            <button class="mode-btn active" data-mode="kids" type="button">Kids</button>
-            <button class="mode-btn" data-mode="adults" type="button">Volwassenen</button>
+          <div class="setting-block">
+            <span class="setting-label">Categorie</span>
+            <div class="choice-group">
+              <button class="mode-btn active" data-mode="kids" type="button">Kids</button>
+              <button class="mode-btn" data-mode="adults" type="button">Volwassenen</button>
+            </div>
           </div>
+
+          <div class="setting-block">
+            <span class="setting-label">Speeltijd</span>
+            <div class="choice-group time-group">
+              <button class="time-btn" data-time="60" type="button">60s</button>
+              <button class="time-btn active" data-time="90" type="button">90s</button>
+              <button class="time-btn" data-time="120" type="button">120s</button>
+            </div>
+          </div>
+
+          <p id="homeHighscore" class="highscore-line">Highscore: 0</p>
 
           <button id="startButton" class="primary-btn" type="button">Start spel</button>
         </section>
@@ -60,8 +74,8 @@
           </div>
 
           <div class="answer-actions" aria-label="antwoordknoppen">
-            <button id="passButton" class="answer-btn pass-btn" type="button">Pass</button>
-            <button id="goodButton" class="answer-btn good-btn" type="button">Good</button>
+            <button id="passButton" class="answer-btn pass-btn" type="button">Pas</button>
+            <button id="goodButton" class="answer-btn good-btn" type="button">Goed</button>
           </div>
 
           <button id="stopButton" class="secondary-btn" type="button">Stop spel</button>
@@ -72,6 +86,7 @@
           <h2>Je score</h2>
           <div id="finalScore" class="final-score">0</div>
           <p id="finalDetail" class="final-detail">0 goed &middot; 0 gepast</p>
+          <p id="finalRecord" class="final-record hidden">Nieuw record!</p>
           <div class="end-actions">
             <button id="restartButton" class="primary-btn" type="button">Nog een keer</button>
             <button id="homeButton" class="secondary-btn" type="button">Hoofdscherm</button>

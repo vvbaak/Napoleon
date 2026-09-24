@@ -31,8 +31,12 @@ const orientationNotice = document.getElementById('orientationNotice');
 const modeButtons = document.querySelectorAll('.mode-btn');
 const timerBox = document.querySelector('.timer-box');
 const finalDetail = document.getElementById('finalDetail');
+const finalRecord = document.getElementById('finalRecord');
+const homeHighscore = document.getElementById('homeHighscore');
+const timeButtons = document.querySelectorAll('.time-btn');
 
 let selectedMode = 'kids';
+let selectedTime = 90;
 let score = 0;
 let passCount = 0;
 let timeLeft = 90;
@@ -45,6 +49,32 @@ let timerInterval = null;
 let orientationPermissionGranted = false;
 let lastTilt = null;
 let audioContext = null;
+
+function highscoreKey(mode) {
+  return `napoleon_highscore_${mode}`;
+}
+
+function getHighscore(mode) {
+  try {
+    return Number(localStorage.getItem(highscoreKey(mode))) || 0;
+  } catch (error) {
+    return 0;
+  }
+}
+
+function setHighscore(mode, value) {
+  try {
+    localStorage.setItem(highscoreKey(mode), String(value));
+  } catch (error) {
+    // storage may be unavailable in private mode; ignore.
+  }
+}
+
+function updateHighscoreDisplay() {
+  if (homeHighscore) {
+    homeHighscore.textContent = `Highscore: ${getHighscore(selectedMode)}`;
+  }
+}
 
 function syncViewportMetrics() {
   const vh = window.innerHeight * 0.01;
@@ -92,6 +122,14 @@ function setMode(mode) {
   selectedMode = mode;
   modeButtons.forEach((button) => {
     button.classList.toggle('active', button.dataset.mode === mode);
+  });
+  updateHighscoreDisplay();
+}
+
+function setTime(seconds) {
+  selectedTime = seconds;
+  timeButtons.forEach((button) => {
+    button.classList.toggle('active', Number(button.dataset.time) === seconds);
   });
 }
 
@@ -235,7 +273,8 @@ function handleCorrect() {
   score += 1;
   updateScore();
   ensureAudioContext();
-  playTone(740, 0.12, 0.06, 'triangle');
+  playTone(660, 0.08, 0.06, 'triangle');
+  playTone(990, 0.14, 0.05, 'triangle');
   flashFeedback('good');
   setStatus('Goed! Volgend woord');
   nextWord();
@@ -245,7 +284,8 @@ function handlePass() {
   if (!roundActive) return;
   passCount += 1;
   ensureAudioContext();
-  playTone(180, 0.16, 0.04, 'sawtooth');
+  playTone(220, 0.18, 0.05, 'sawtooth');
+  playTone(160, 0.2, 0.04, 'sawtooth');
   flashFeedback('pass');
   setStatus('Pas! Geen punt');
   nextWord();
@@ -254,11 +294,11 @@ function handlePass() {
 function resetGame() {
   score = 0;
   passCount = 0;
-  timeLeft = 90;
+  timeLeft = selectedTime;
   currentIndex = 0;
   currentWords = shuffle(MODE_WORDS[selectedMode]);
   scoreValue.textContent = '0';
-  timerValue.textContent = '90';
+  timerValue.textContent = String(selectedTime);
   if (timerBox) {
     timerBox.classList.remove('low');
   }
@@ -329,6 +369,17 @@ function endGame() {
   if (finalDetail) {
     finalDetail.textContent = `${score} goed \u00b7 ${passCount} gepast`;
   }
+
+  const previousBest = getHighscore(selectedMode);
+  const isRecord = score > previousBest;
+  if (isRecord) {
+    setHighscore(selectedMode, score);
+  }
+  if (finalRecord) {
+    finalRecord.classList.toggle('hidden', !isRecord || score === 0);
+  }
+  updateHighscoreDisplay();
+
   if (timerBox) {
     timerBox.classList.remove('low');
   }
@@ -348,6 +399,10 @@ function handleOrientation() {
 function attachListeners() {
   modeButtons.forEach((button) => {
     button.addEventListener('click', () => setMode(button.dataset.mode));
+  });
+
+  timeButtons.forEach((button) => {
+    button.addEventListener('click', () => setTime(Number(button.dataset.time)));
   });
 
   startButton.addEventListener('click', startGame);
@@ -371,6 +426,7 @@ function attachListeners() {
   });
 
   syncViewportMetrics();
+  updateHighscoreDisplay();
 }
 
 attachListeners();
