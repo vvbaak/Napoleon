@@ -1,4 +1,4 @@
-const CACHE = 'napoleon-v4';
+const CACHE = 'napoleon-v5';
 const ASSETS = [
   './',
   './index.html',

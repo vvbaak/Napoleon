@@ -294,6 +294,17 @@ function showCountdown() {
   });
 }
 
+function fitWordText() {
+  const length = wordText.textContent.length;
+  let size;
+  if (length <= 6) size = 3.4;
+  else if (length <= 9) size = 2.9;
+  else if (length <= 12) size = 2.4;
+  else if (length <= 15) size = 2;
+  else size = 1.6;
+  wordText.style.fontSize = `${size}rem`;
+}
+
 function nextWord() {
   if (!isRunning) return;
 
@@ -303,6 +314,7 @@ function nextWord() {
   }
 
   wordText.textContent = currentWords[currentIndex];
+  fitWordText();
   wordCard.classList.remove('hidden');
   currentIndex += 1;
 }
