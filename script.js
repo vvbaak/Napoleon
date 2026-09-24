@@ -263,20 +263,30 @@ function setStatus(message) {
 
 function showCountdown() {
   return new Promise((resolve) => {
+    ensureAudioContext();
     countdownEl.classList.add('visible');
-    const values = [3, 2, 1];
+    const values = [5, 4, 3, 2, 1];
     let index = 0;
 
     function tick() {
       countdownEl.textContent = String(values[index]);
+      countdownEl.classList.remove('pop');
+      void countdownEl.offsetWidth;
+      countdownEl.classList.add('pop');
+      playTone(520, 0.14, 0.28, 'sine');
+
       if (index < values.length - 1) {
         index += 1;
-        setTimeout(tick, 650);
+        setTimeout(tick, 750);
       } else {
         setTimeout(() => {
-          countdownEl.classList.remove('visible');
-          resolve();
-        }, 650);
+          countdownEl.textContent = 'GO!';
+          playTone(880, 0.28, 0.32, 'triangle');
+          setTimeout(() => {
+            countdownEl.classList.remove('visible', 'pop');
+            resolve();
+          }, 450);
+        }, 750);
       }
     }
 
@@ -422,6 +432,9 @@ function endGame() {
 
 function stopGame() {
   if (!isRunning) return;
+  ensureAudioContext();
+  playTone(320, 0.16, 0.28, 'sawtooth');
+  playTone(200, 0.28, 0.26, 'sawtooth');
   endGame();
 }
 
