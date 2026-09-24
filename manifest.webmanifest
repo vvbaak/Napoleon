@@ -1,0 +1,19 @@
+{
+  "name": "Napoleon",
+  "short_name": "Napoleon",
+  "description": "Raad het woord op je voorhoofd. Speel in landscape.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#101827",
+  "theme_color": "#101827",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -29,9 +29,12 @@ const statusText = document.getElementById('statusText');
 const finalScore = document.getElementById('finalScore');
 const orientationNotice = document.getElementById('orientationNotice');
 const modeButtons = document.querySelectorAll('.mode-btn');
+const timerBox = document.querySelector('.timer-box');
+const finalDetail = document.getElementById('finalDetail');
 
 let selectedMode = 'kids';
 let score = 0;
+let passCount = 0;
 let timeLeft = 90;
 let currentWords = [];
 let currentIndex = 0;
@@ -153,10 +156,28 @@ function startTimer() {
     timeLeft -= 1;
     timerValue.textContent = String(Math.max(0, timeLeft));
 
+    if (timerBox) {
+      timerBox.classList.toggle('low', timeLeft <= 10);
+    }
+
+    if (timeLeft <= 10 && timeLeft > 0) {
+      playTone(880, 0.05, 0.03, 'square');
+    }
+
     if (timeLeft <= 0) {
       endGame();
     }
   }, 1000);
+}
+
+function flashFeedback(type) {
+  gameScreen.classList.remove('flash-good', 'flash-pass');
+  // force reflow so the animation restarts on rapid taps
+  void gameScreen.offsetWidth;
+  gameScreen.classList.add(type === 'good' ? 'flash-good' : 'flash-pass');
+  setTimeout(() => {
+    gameScreen.classList.remove('flash-good', 'flash-pass');
+  }, 260);
 }
 
 function setStatus(message) {
@@ -210,28 +231,37 @@ function updateScore() {
 }
 
 function handleCorrect() {
+  if (!roundActive) return;
   score += 1;
   updateScore();
   ensureAudioContext();
   playTone(740, 0.12, 0.06, 'triangle');
+  flashFeedback('good');
   setStatus('Goed! Volgend woord');
   nextWord();
 }
 
 function handlePass() {
+  if (!roundActive) return;
+  passCount += 1;
   ensureAudioContext();
   playTone(180, 0.16, 0.04, 'sawtooth');
+  flashFeedback('pass');
   setStatus('Pas! Geen punt');
   nextWord();
 }
 
 function resetGame() {
   score = 0;
+  passCount = 0;
   timeLeft = 90;
   currentIndex = 0;
   currentWords = shuffle(MODE_WORDS[selectedMode]);
   scoreValue.textContent = '0';
   timerValue.textContent = '90';
+  if (timerBox) {
+    timerBox.classList.remove('low');
+  }
   lastTilt = null;
   roundActive = false;
   startingRound = false;
@@ -296,6 +326,12 @@ function endGame() {
   clearInterval(timerInterval);
   timerInterval = null;
   finalScore.textContent = String(score);
+  if (finalDetail) {
+    finalDetail.textContent = `${score} goed \u00b7 ${passCount} gepast`;
+  }
+  if (timerBox) {
+    timerBox.classList.remove('low');
+  }
   orientationNotice.classList.add('hidden');
   showScreen(endScreen);
 }
@@ -338,3 +374,9 @@ function attachListeners() {
 }
 
 attachListeners();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}

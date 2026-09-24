@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#111827" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="icon.svg" />
+    <link rel="apple-touch-icon" href="icon.svg" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Napoleon" />
     <title>Napoleon</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -64,6 +71,7 @@
           <p class="eyebrow">Einde ronde</p>
           <h2>Je score</h2>
           <div id="finalScore" class="final-score">0</div>
+          <p id="finalDetail" class="final-detail">0 goed &middot; 0 gepast</p>
           <div class="end-actions">
             <button id="restartButton" class="primary-btn" type="button">Nog een keer</button>
             <button id="homeButton" class="secondary-btn" type="button">Hoofdscherm</button>
