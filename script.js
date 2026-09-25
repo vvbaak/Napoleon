@@ -25,13 +25,16 @@ const MODE_WORDS = {
 };
 
 const homeScreen = document.getElementById('homeScreen');
+const teamTurnScreen = document.getElementById('teamTurnScreen');
 const gameScreen = document.getElementById('gameScreen');
 const endScreen = document.getElementById('endScreen');
 const startButton = document.getElementById('startButton');
+const startTurnButton = document.getElementById('startTurnButton');
+const turnHomeButton = document.getElementById('turnHomeButton');
+const nextTeamButton = document.getElementById('nextTeamButton');
 const stopButton = document.getElementById('stopButton');
 const passButton = document.getElementById('passButton');
 const goodButton = document.getElementById('goodButton');
-const restartButton = document.getElementById('restartButton');
 const homeButton = document.getElementById('homeButton');
 const scoreValue = document.getElementById('scoreValue');
 const timerValue = document.getElementById('timerValue');
@@ -52,9 +55,21 @@ const rulesButton = document.getElementById('rulesButton');
 const rulesModal = document.getElementById('rulesModal');
 const rulesCloseButton = document.getElementById('rulesCloseButton');
 const rulesDoneButton = document.getElementById('rulesDoneButton');
+const teamButtons = document.querySelectorAll('.team-btn');
+const teamTurnTitle = document.getElementById('teamTurnTitle');
+const standingsTurn = document.getElementById('standingsTurn');
+const standingsEnd = document.getElementById('standingsEnd');
+const endEyebrow = document.getElementById('endEyebrow');
+const endTitle = document.getElementById('endTitle');
+
+const WIN_TARGET = 30;
 
 let selectedMode = 'kids';
 let selectedTime = 90;
+let teamCount = 2;
+let teams = [];
+let currentTeamIndex = 0;
+let gameOver = false;
 let score = 0;
 let passCount = 0;
 let timeLeft = 90;
@@ -194,6 +209,36 @@ function setTime(seconds) {
   });
 }
 
+function setTeams(count) {
+  teamCount = count;
+  teamButtons.forEach((button) => {
+    button.classList.toggle('active', Number(button.dataset.teams) === count);
+  });
+}
+
+function renderStandings(container) {
+  if (!container) return;
+  container.innerHTML = '';
+  const leaderScore = teams.reduce((max, team) => Math.max(max, team.score), 0);
+  teams.forEach((team, index) => {
+    const row = document.createElement('div');
+    row.className = 'standing-row';
+    if (index === currentTeamIndex) row.classList.add('current');
+    if (team.score === leaderScore && leaderScore > 0) row.classList.add('leader');
+
+    const name = document.createElement('span');
+    name.className = 'standing-name';
+    name.textContent = team.name;
+
+    const value = document.createElement('span');
+    value.className = 'standing-score';
+    value.textContent = `${team.score} / ${WIN_TARGET}`;
+
+    row.append(name, value);
+    container.appendChild(row);
+  });
+}
+
 function shuffle(array) {
   const copy = [...array];
   for (let i = copy.length - 1; i > 0; i -= 1) {
@@ -204,7 +249,7 @@ function shuffle(array) {
 }
 
 function showScreen(screen) {
-  [homeScreen, gameScreen, endScreen].forEach((element) => {
+  [homeScreen, teamTurnScreen, gameScreen, endScreen].forEach((element) => {
     element.classList.toggle('visible', element === screen);
     element.classList.toggle('hidden', element !== screen);
   });
@@ -413,7 +458,25 @@ async function beginRound() {
   startTimer();
 }
 
-async function startGame() {
+function startMatch() {
+  teams = [];
+  for (let i = 0; i < teamCount; i += 1) {
+    teams.push({ name: `Team ${i + 1}`, score: 0 });
+  }
+  currentTeamIndex = 0;
+  gameOver = false;
+  showTeamTurn();
+}
+
+function showTeamTurn() {
+  if (teamTurnTitle) {
+    teamTurnTitle.textContent = teams[currentTeamIndex].name;
+  }
+  renderStandings(standingsTurn);
+  showScreen(teamTurnScreen);
+}
+
+async function startTurn() {
   resetGame();
   showScreen(gameScreen);
   isRunning = true;
@@ -448,9 +511,19 @@ function endGame() {
   startingRound = false;
   clearInterval(timerInterval);
   timerInterval = null;
-  finalScore.textContent = String(score);
+
+  const team = teams[currentTeamIndex];
+  if (team) {
+    team.score += score;
+  }
+
+  const totalScore = team ? team.score : score;
+  finalScore.textContent = String(totalScore);
+  if (endTitle && team) {
+    endTitle.textContent = team.name;
+  }
   if (finalDetail) {
-    finalDetail.textContent = `${score} goed \u00b7 ${passCount} gepast`;
+    finalDetail.textContent = `+${score} deze beurt \u00b7 ${passCount} gepast`;
   }
 
   const previousBest = getHighscore(selectedMode);
@@ -463,11 +536,37 @@ function endGame() {
   }
   updateHighscoreDisplay();
 
+  gameOver = Boolean(team) && team.score >= WIN_TARGET;
+  if (endEyebrow) {
+    endEyebrow.textContent = gameOver ? 'Gewonnen!' : 'Beurt voorbij';
+  }
+  if (nextTeamButton) {
+    nextTeamButton.textContent = gameOver ? 'Nieuw spel' : 'Volgende team';
+  }
+  if (gameOver) {
+    ensureAudioContext();
+    playTone(660, 0.14, 0.3, 'triangle');
+    playTone(880, 0.16, 0.3, 'triangle');
+    playTone(1180, 0.3, 0.3, 'triangle');
+  }
+
+  renderStandings(standingsEnd);
+
   if (timerBox) {
     timerBox.classList.remove('low');
   }
   orientationNotice.classList.add('hidden');
   showScreen(endScreen);
+}
+
+function nextTeam() {
+  if (gameOver) {
+    updateHighscoreDisplay();
+    showScreen(homeScreen);
+    return;
+  }
+  currentTeamIndex = (currentTeamIndex + 1) % teamCount;
+  showTeamTurn();
 }
 
 function stopGame() {
@@ -494,7 +593,20 @@ function attachListeners() {
     button.addEventListener('click', () => setTime(Number(button.dataset.time)));
   });
 
-  startButton.addEventListener('click', startGame);
+  teamButtons.forEach((button) => {
+    button.addEventListener('click', () => setTeams(Number(button.dataset.teams)));
+  });
+
+  startButton.addEventListener('click', startMatch);
+  if (startTurnButton) {
+    startTurnButton.addEventListener('click', startTurn);
+  }
+  if (turnHomeButton) {
+    turnHomeButton.addEventListener('click', () => showScreen(homeScreen));
+  }
+  if (nextTeamButton) {
+    nextTeamButton.addEventListener('click', nextTeam);
+  }
   stopButton.addEventListener('click', stopGame);
   passButton.addEventListener('click', handlePass);
   goodButton.addEventListener('click', handleCorrect);
@@ -517,9 +629,6 @@ function attachListeners() {
       }
     });
   }
-  restartButton.addEventListener('click', () => {
-    startGame();
-  });
   homeButton.addEventListener('click', () => {
     if (isRunning) {
       endGame();

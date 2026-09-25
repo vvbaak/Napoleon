@@ -51,11 +51,30 @@
             </div>
           </div>
 
+          <div class="setting-block">
+            <span class="setting-label">Aantal teams</span>
+            <div class="choice-group time-group">
+              <button class="team-btn active" data-teams="2" type="button">2</button>
+              <button class="team-btn" data-teams="3" type="button">3</button>
+              <button class="team-btn" data-teams="4" type="button">4</button>
+            </div>
+          </div>
+
           <p id="homeHighscore" class="highscore-line">Highscore: 0</p>
 
           <button id="startButton" class="primary-btn" type="button">Start spel</button>
           <button id="rulesButton" class="secondary-btn" type="button">Spelregels</button>
           <button id="clearHighscoreButton" class="link-btn" type="button">Highscore wissen</button>
+        </section>
+
+        <section id="teamTurnScreen" class="panel hidden">
+          <p class="eyebrow">Volgende beurt</p>
+          <h2 id="teamTurnTitle">Team 1</h2>
+          <p class="subtitle">is aan de beurt. Houd de telefoon in landscape op je voorhoofd.</p>
+          <div id="standingsTurn" class="standings"></div>
+          <p class="target-line">Eerste bij <strong>30</strong> punten wint</p>
+          <button id="startTurnButton" class="primary-btn" type="button">Start beurt</button>
+          <button id="turnHomeButton" class="link-btn" type="button">Terug naar hoofdscherm</button>
         </section>
 
         <section id="gameScreen" class="panel hidden">
@@ -85,13 +104,14 @@
         </section>
 
         <section id="endScreen" class="panel hidden">
-          <p class="eyebrow">Einde ronde</p>
-          <h2>Je score</h2>
+          <p class="eyebrow" id="endEyebrow">Beurt voorbij</p>
+          <h2 id="endTitle">Team 1</h2>
           <div id="finalScore" class="final-score">0</div>
-          <p id="finalDetail" class="final-detail">0 goed &middot; 0 gepast</p>
+          <p id="finalDetail" class="final-detail">+0 deze beurt &middot; 0 gepast</p>
           <p id="finalRecord" class="final-record hidden">Nieuw record!</p>
+          <div id="standingsEnd" class="standings"></div>
           <div class="end-actions">
-            <button id="restartButton" class="primary-btn" type="button">Nog een keer</button>
+            <button id="nextTeamButton" class="primary-btn" type="button">Volgende team</button>
             <button id="homeButton" class="secondary-btn" type="button">Hoofdscherm</button>
           </div>
         </section>
