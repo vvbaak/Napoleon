@@ -48,6 +48,10 @@ const finalRecord = document.getElementById('finalRecord');
 const homeHighscore = document.getElementById('homeHighscore');
 const timeButtons = document.querySelectorAll('.time-btn');
 const clearHighscoreButton = document.getElementById('clearHighscoreButton');
+const rulesButton = document.getElementById('rulesButton');
+const rulesModal = document.getElementById('rulesModal');
+const rulesCloseButton = document.getElementById('rulesCloseButton');
+const rulesDoneButton = document.getElementById('rulesDoneButton');
 
 let selectedMode = 'kids';
 let selectedTime = 90;
@@ -99,6 +103,18 @@ function clearHighscore() {
   updateHighscoreDisplay();
   ensureAudioContext();
   playTone(300, 0.14, 0.24, 'sine');
+}
+
+function openRules() {
+  if (rulesModal) {
+    rulesModal.classList.remove('hidden');
+  }
+}
+
+function closeRules() {
+  if (rulesModal) {
+    rulesModal.classList.add('hidden');
+  }
 }
 
 function syncViewportMetrics() {
@@ -484,6 +500,22 @@ function attachListeners() {
   goodButton.addEventListener('click', handleCorrect);
   if (clearHighscoreButton) {
     clearHighscoreButton.addEventListener('click', clearHighscore);
+  }
+  if (rulesButton) {
+    rulesButton.addEventListener('click', openRules);
+  }
+  if (rulesCloseButton) {
+    rulesCloseButton.addEventListener('click', closeRules);
+  }
+  if (rulesDoneButton) {
+    rulesDoneButton.addEventListener('click', closeRules);
+  }
+  if (rulesModal) {
+    rulesModal.addEventListener('click', (event) => {
+      if (event.target.dataset.close) {
+        closeRules();
+      }
+    });
   }
   restartButton.addEventListener('click', () => {
     startGame();
